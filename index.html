@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warning Clock</title>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Warning Clock</h1>
+        <div id="currentTime" class="text-4xl font-bold mb-6 text-center text-gray-800"></div>
+        <input type="time" id="alarmTime" class="w-full p-2 mb-4 border rounded">
+        <button onclick="setAlarm()" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300">Set Alarm</button>
+    </div>
+
+    <!-- Alarm Modal -->
+    <div id="alarmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+            <h2 class="text-2xl font-bold mb-4 text-center text-red-600">Alarm!</h2>
+            <p class="text-lg text-center mb-6">Time to wake up!</p>
+            <button onclick="stopAlarm()" class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition duration-300">Stop Alarm</button>
+        </div>
+    </div>
+
+    <script>
+        // alarms song
+        let alarmSound = new Audio('./ywrhmyshh_mwmnmbyn-mc.mp3');
+        let alarmTimeout;
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        function setAlarm() {
+            const alarmTime = document.getElementById('alarmTime').value;
+            if (alarmTime) {
+                const now = new Date();
+                const [alarmHours, alarmMinutes] = alarmTime.split(':');
+                const alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), alarmHours, alarmMinutes);
+                
+                const timeUntilAlarm = alarmDate - now;
+                if (timeUntilAlarm < 0) {
+                    alarmDate.setDate(alarmDate.getDate() + 1);
+                }
+
+                clearTimeout(alarmTimeout);
+                alarmTimeout = setTimeout(() => {
+                    playAlarm();
+                }, alarmDate - now);
+
+                alert(`Alarm set for ${alarmTime}`);
+            } else {
+                alert('Please set a valid alarm time');
+            }
+        }
+
+        function playAlarm() {
+            alarmSound.loop = true;
+            alarmSound.play().catch(e => console.error("Error playing sound:", e));
+            document.getElementById('alarmModal').classList.remove('hidden');
+        }
+
+        function stopAlarm() {
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            document.getElementById('alarmModal').classList.add('hidden');
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
